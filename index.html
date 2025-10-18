@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Генератор библейских стихов</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;600&family=Crimson+Text:ital@0;1&family=Raleway:wght@300;400;700&family=Cormorant+Garamond:wght@300;400;600&family=Lora:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+        .control-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        .control-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+        .control-panel::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .control-panel::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+        .section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+        }
+        .section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .verse-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .verse-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .custom-verse {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1em;
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        .custom-verse:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .background-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .bg-option {
+            height: 80px;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .bg-option:hover {
+            transform: scale(1.05);
+        }
+        .bg-option.active {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+        .bg-option::after {
+            content: '✓';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #667eea;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .bg-option.active::after {
+            display: flex;
+        }
+        .font-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .font-option {
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .font-option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        .font-option.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        .format-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .format-option {
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .format-option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        .format-option.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        .format-option .size {
+            font-size: 0.85em;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+        .effect-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .effect-option {
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+        .effect-option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        .effect-option.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        .border-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .border-option {
+            padding: 40px 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .border-option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        .border-option.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        .preview-panel {
+            position: sticky;
+            top: 20px;
+        }
+        .canvas-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 500px;
+        }
+        #canvas {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .download-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        .download-btn:active {
+            transform: translateY(0);
+        }
+        .color-input {
+            width: 100%;
+            height: 50px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .slider-container {
+            margin-top: 10px;
+        }
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #dee2e6;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            color: #495057;
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+        }
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            .preview-panel {
+                position: static;
+            }
+            .control-panel {
+                max-height: none;
+            }
+        }
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+            }
+            .container {
+                border-radius: 0;
+                min-height: 100vh;
+            }
+            .header {
+                padding: 20px 15px;
+            }
+            .header h1 {
+                font-size: 1.8em;
+            }
+            .header p {
+                font-size: 0.95em;
+            }
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 15px;
+            }
+            .section {
+                padding: 15px;
+                border-radius: 12px;
+            }
+            .section h3 {
+                font-size: 1.1em;
+                margin-bottom: 12px;
+            }
+            .background-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            .bg-option {
+                height: 70px;
+            }
+            .font-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            .font-option {
+                padding: 12px 8px;
+                font-size: 0.9em;
+            }
+            .format-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            .format-option {
+                padding: 12px 5px;
+                font-size: 0.85em;
+            }
+            .format-option .size {
+                font-size: 0.75em;
+            }
+            .canvas-container {
+                padding: 15px;
+                min-height: 400px;
+            }
+            #canvas {
+                width: 100%;
+                height: auto;
+            }
+            .download-btn {
+                padding: 16px;
+                font-size: 1.1em;
+            }
+            .verse-select,
+            .custom-verse {
+                font-size: 0.95em;
+            }
+            .custom-verse {
+                min-height: 120px;
+            }
+            .color-input {
+                height: 45px;
+            }
+            .effect-grid,
+            .border-grid {
+                gap: 8px;
+            }
+        }
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+            .header p {
+                font-size: 0.85em;
+            }
+            .main-content {
+                padding: 10px;
+                gap: 15px;
+            }
+            .section {
+                padding: 12px;
+            }
+            .section h3 {
+                font-size: 1em;
+            }
+            .background-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+            }
+            .bg-option {
+                height: 60px;
+            }
+            .font-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+            }
+            .font-option {
+                padding: 10px 6px;
+                font-size: 0.85em;
+            }
+            .format-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            .format-option {
+                padding: 12px;
+                font-size: 0.9em;
+            }
+            .canvas-container {
+                padding: 10px;
+                min-height: 350px;
+            }
+            .download-btn {
+                padding: 14px;
+                font-size: 1em;
+                margin-top: 15px;
+            }
+            .verse-select,
+            .custom-verse {
+                font-size: 0.9em;
+                padding: 10px;
+            }
+            .label {
+                font-size: 0.9em;
+            }
+            .effect-grid,
+            .border-grid {
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }
+            .border-option {
+                padding: 30px 10px;
+            }
+        }
+        .label {
+            display: block;
+            margin-bottom: 8px;
+            color: #495057;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 Генератор библейских стихов</h1>
+            <p>Создавайте красивые картинки для соцсетей за минуту</p>
+        </div>
+        <div class="main-content">
+            <div class="control-panel">
+                <!-- Выбор стиха -->
+                <div class="section">
+                    <h3>📖 Выберите стих</h3>
+                    <select class="verse-select" id="verseSelect">
+                        <option value="">Выберите популярный стих...</option>
+                        <option value="Ибо так возлюбил Бог мир, что отдал Сына Своего Единородного, дабы всякий верующий в Него, не погиб, но имел жизнь вечную.|Иоанна 3:16">Иоанна 3:16</option>
+                        <option value="Я есмь путь и истина и жизнь; никто не приходит к Отцу, как только через Меня.|Иоанна 14:6">Иоанна 14:6</option>
+                        <option value="Ибо возмездие за грех - смерть, а дар Божий - жизнь вечная во Христе Иисусе, Господе нашем.|Римлянам 6:23">Римлянам 6:23</option>
+                        <option value="Все могу в укрепляющем меня Иисусе Христе.|Филиппийцам 4:13">Филиппийцам 4:13</option>
+                        <option value="Не бойся, ибо Я с тобою; не смущайся, ибо Я - Бог твой; Я укреплю тебя, и помогу тебе.|Исаия 41:10">Исаия 41:10</option>
+                        <option value="Господь - Пастырь мой; я ни в чем не буду нуждаться.|Псалом 22:1">Псалом 22:1</option>
+                        <option value="Возложи на Господа заботы твои, и Он поддержит тебя.|Псалом 54:23">Псалом 54:23</option>
+                        <option value="Вот, Я с вами во все дни до скончания века.|Матфея 28:20">Матфея 28:20</option>
+                        <option value="Ищите же прежде Царства Божия и правды Его, и это все приложится вам.|Матфея 6:33">Матфея 6:33</option>
+                        <option value="Просите, и дано будет вам; ищите, и найдете; стучите, и отворят вам.|Матфея 7:7">Матфея 7:7</option>
+                    </select>
+                    <label class="label" style="margin-top: 15px;">Или введите свой текст:</label>
+                    <textarea class="custom-verse" id="customVerse" placeholder="Введите библейский стих или свой текст..."></textarea>
+                    <label class="label" style="margin-top: 15px;">Ссылка на стих:</label>
+                    <input type="text" class="verse-select" id="verseReference" placeholder="Например: Иоанна 3:16" style="margin-top: 0;">
+                </div>
+                <!-- Фон -->
+                <div class="section">
+                    <h3>🎨 Выберите фон</h3>
+                    <div class="background-grid">
+                        <div class="bg-option active" data-bg="gradient1" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                        <div class="bg-option" data-bg="gradient2" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"></div>
+                        <div class="bg-option" data-bg="gradient3" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"></div>
+                        <div class="bg-option" data-bg="gradient4" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);"></div>
+                        <div class="bg-option" data-bg="gradient5" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);"></div>
+                        <div class="bg-option" data-bg="gradient6" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);"></div>
+                        <div class="bg-option" data-bg="gradient7" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);"></div>
+                        <div class="bg-option" data-bg="gradient8" style="background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%);"></div>
+                        <div class="bg-option" data-bg="gradient9" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);"></div>
+                        <div class="bg-option" data-bg="gradient10" style="background: linear-gradient(135deg, #08203e 0%, #557c93 100%);"></div>
+                        <div class="bg-option" data-bg="gradient11" style="background: linear-gradient(135deg, #5f2c82 0%, #49a09d 100%);"></div>
+                        <div class="bg-option" data-bg="gradient12" style="background: linear-gradient(135deg, #134e5e 0%, #71b280 100%);"></div>
+                    </div>
+                </div>
+                <!-- Шрифт -->
+                <div class="section">
+                    <h3>🖋 Выберите шрифт</h3>
+                    <div class="font-grid">
+                        <div class="font-option active" data-font="Georgia" style="font-family: Georgia;">Классический</div>
+                        <div class="font-option" data-font="'Playfair Display', serif" style="font-family: 'Playfair Display', serif;">Элегантный</div>
+                        <div class="font-option" data-font="'Montserrat', sans-serif" style="font-family: 'Montserrat', sans-serif;">Современный</div>
+                        <div class="font-option" data-font="'Crimson Text', serif" style="font-family: 'Crimson Text', serif;">Художественный</div>
+                        <div class="font-option" data-font="'Raleway', sans-serif" style="font-family: 'Raleway', sans-serif;">Утонченный</div>
+                        <div class="font-option" data-font="'Cormorant Garamond', serif" style="font-family: 'Cormorant Garamond', serif;">Винтажный</div>
+                        <div class="font-option" data-font="'Lora', serif" style="font-family: 'Lora', serif;">Книжный</div>
+                        <div class="font-option" data-font="Arial, sans-serif" style="font-family: Arial, sans-serif;">Минимализм</div>
+                    </div>
+                </div>
+                <!-- Эффекты текста -->
+                <div class="section">
+                    <h3>✨ Эффекты текста</h3>
+                    <div class="effect-grid">
+                        <div class="effect-option active" data-effect="none">Без эффекта</div>
+                        <div class="effect-option" data-effect="shadow">Тень</div>
+                        <div class="effect-option" data-effect="glow">Свечение</div>
+                        <div class="effect-option" data-effect="outline">Контур</div>
+                        <div class="effect-option" data-effect="3d">3D эффект</div>
+                        <div class="effect-option" data-effect="emboss">Рельеф</div>
+                    </div>
+                </div>
+                <!-- Рамки и обрамление -->
+                <div class="section">
+                    <h3>🖼 Рамки и обрамление</h3>
+                    <div class="border-grid">
+                        <div class="border-option active" data-border="none">Без рамки</div>
+                        <div class="border-option" data-border="simple">Простая</div>
+                        <div class="border-option" data-border="double">Двойная</div>
+                        <div class="border-option" data-border="ornament">Орнамент</div>
+                        <div class="border-option" data-border="corners">Уголки</div>
+                        <div class="border-option" data-border="vintage">Винтаж</div>
+                        <div class="border-option" data-border="rounded">Скругленная</div>
+                        <div class="border-option" data-border="dashed">Пунктир</div>
+                        <div class="border-option" data-border="wave">Волны</div>
+                        <div class="border-option" data-border="floral">Цветочная</div>
+                        <div class="border-option" data-border="art-deco">Арт-деко</div>
+                        <div class="border-option" data-border="geometric">Геометрия</div>
+                    </div>
+                </div>
+                <!-- Настройки прозрачности -->
+                <div class="section">
+                    <h3>🎭 Дополнительные настройки</h3>
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Прозрачность фона</span>
+                            <span id="bgOpacityValue">100%</span>
+                        </div>
+                        <input type="range" class="slider" id="bgOpacity" min="0" max="100" value="100">
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Размер текста</span>
+                            <span id="textSizeValue">100%</span>
+                        </div>
+                        <input type="range" class="slider" id="textSize" min="60" max="150" value="100">
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Интенсивность виньетки</span>
+                            <span id="vignetteValue">30%</span>
+                        </div>
+                        <input type="range" class="slider" id="vignette" min="0" max="100" value="30">
+                    </div>
+                    <div class="checkbox-container">
+                        <input type="checkbox" class="checkbox" id="centerAlign" checked>
+                        <label for="centerAlign">Выровнять по центру</label>
+                    </div>
+                    <div class="checkbox-container">
+                        <input type="checkbox" class="checkbox" id="addQuotes" checked>
+                        <label for="addQuotes">Добавить кавычки</label>
+                    </div>
+                </div>
+                <!-- Цвета -->
+                <div class="section">
+                    <h3>🎨 Цвета</h3>
+                    <label class="label">Основной текст:</label>
+                    <input type="color" class="color-input" id="textColor" value="#ffffff">
+                    <label class="label" style="margin-top: 15px;">Ссылка на стих:</label>
+                    <input type="color" class="color-input" id="referenceColor" value="#ffffff">
+                    <label class="label" style="margin-top: 15px;">Цвет рамки:</label>
+                    <input type="color" class="color-input" id="borderColor" value="#ffffff">
+                </div>
+                <!-- Формат -->
+                <div class="section">
+                    <h3>📏 Формат изображения</h3>
+                    <div class="format-grid">
+                        <div class="format-option active" data-format="square">
+                            <div>📱 Квадрат</div>
+                            <div class="size">1080×1080</div>
+                        </div>
+                        <div class="format-option" data-format="story">
+                            <div>📲 Сторис</div>
+                            <div class="size">1080×1920</div>
+                        </div>
+                        <div class="format-option" data-format="post">
+                            <div>🖼 Пост</div>
+                            <div class="size">1080×1350</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Предустановки -->
+                <div class="section">
+                    <h3>🎨 Готовые стили</h3>
+                    <select class="verse-select" id="presetSelect">
+                        <option value="">Выберите готовый стиль...</option>
+                        <option value="elegant">✨ Элегантный - фиолетовый с тенью</option>
+                        <option value="modern">🌟 Современный - синий со свечением</option>
+                        <option value="vintage">📜 Винтажный - бежевый классический</option>
+                        <option value="nature">🌿 Природа - зеленый с орнаментом</option>
+                        <option value="royal">👑 Королевский - золотой 3D</option>
+                        <option value="sunrise">🌅 Рассвет - розово-желтый</option>
+                        <option value="minimal">⚪ Минимализм - чистый белый</option>
+                        <option value="ocean">🌊 Океан - голубое свечение</option>
+                        <option value="sunset">🌇 Закат - оранжево-розовый</option>
+                        <option value="forest">🌲 Лес - темно-зеленый</option>
+                    </select>
+                </div>
+            </div>
+            <div class="preview-panel">
+                <div class="section">
+                    <h3>👁 Предпросмотр</h3>
+                    <div class="canvas-container">
+                        <canvas id="canvas"></canvas>
+                    </div>
+                    <button class="download-btn" onclick="downloadImage()">💾 Скачать изображение</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let currentSettings = {
+            verse: 'Ибо так возлюбил Бог мир, что отдал Сына Своего Единородного, дабы всякий верующий в Него, не погиб, но имел жизнь вечную.',
+            reference: 'Иоанна 3:16',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            font: 'Georgia',
+            textColor: '#ffffff',
+            referenceColor: '#ffffff',
+            borderColor: '#ffffff',
+            format: 'square',
+            effect: 'none',
+            border: 'none',
+            bgOpacity: 100,
+            textSize: 100,
+            vignette: 30,
+            centerAlign: true,
+            addQuotes: true
+        };
+        const backgrounds = {
+            gradient1: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            gradient2: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            gradient3: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+            gradient4: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+            gradient5: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+            gradient6: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+            gradient7: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+            gradient8: 'linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%)',
+            gradient9: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+            gradient10: 'linear-gradient(135deg, #08203e 0%, #557c93 100%)',
+            gradient11: 'linear-gradient(135deg, #5f2c82 0%, #49a09d 100%)',
+            gradient12: 'linear-gradient(135deg, #134e5e 0%, #71b280 100%)'
+        };
+        const formats = {
+            square: { width: 1080, height: 1080 },
+            story: { width: 1080, height: 1920 },
+            post: { width: 1080, height: 1350 }
+        };
+        function initCanvas() {
+            const format = formats[currentSettings.format];
+            canvas.width = format.width;
+            canvas.height = format.height;
+            drawImage();
+        }
+        function createGradient(gradientStr) {
+            const match = gradientStr.match(/linear-gradient\((\d+)deg,\s*(.+?)\s+(\d+)%,\s*(.+?)\s+(\d+)%\)/);
+            if (match) {
+                const angle = parseInt(match[1]);
+                const color1 = match[2];
+                const color2 = match[4];
+                const angleRad = (angle - 90) * Math.PI / 180;
+                const x0 = canvas.width / 2 - Math.cos(angleRad) * canvas.width / 2;
+                const y0 = canvas.height / 2 - Math.sin(angleRad) * canvas.height / 2;
+                const x1 = canvas.width / 2 + Math.cos(angleRad) * canvas.width / 2;
+                const y1 = canvas.height / 2 + Math.sin(angleRad) * canvas.height / 2;
+                const gradient = ctx.createLinearGradient(x0, y0, x1, y1);
+                gradient.addColorStop(0, color1);
+                gradient.addColorStop(1, color2);
+                return gradient;
+            }
+            return '#667eea';
+        }
+        function wrapText(text, maxWidth) {
+            const words = text.split(' ');
+            const lines = [];
+            let currentLine = words[0];
+            for (let i = 1; i < words.length; i++) {
+                const word = words[i];
+                const width = ctx.measureText(currentLine + ' ' + word).width;
+                if (width < maxWidth) {
+                    currentLine += ' ' + word;
+                } else {
+                    lines.push(currentLine);
+                    currentLine = word;
+                }
+            }
+            lines.push(currentLine);
+            return lines;
+        }
+        function applyTextEffect(text, x, y) {
+            const effect = currentSettings.effect;
+            if (effect === 'shadow') {
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                ctx.shadowBlur = 25;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 6;
+            } else if (effect === 'glow') {
+                ctx.shadowColor = currentSettings.textColor;
+                ctx.shadowBlur = 40;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 0;
+            } else if (effect === 'outline') {
+                ctx.strokeStyle = currentSettings.borderColor;
+                ctx.lineWidth = canvas.width * 0.003;
+                ctx.strokeText(text, x, y);
+            } else if (effect === '3d') {
+                const depth = 5;
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                for (let i = depth; i > 0; i--) {
+                    ctx.fillText(text, x + i, y + i);
+                }
+                ctx.fillStyle = currentSettings.textColor;
+            } else if (effect === 'emboss') {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.fillText(text, x - 2, y - 2);
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.fillText(text, x + 2, y + 2);
+                ctx.fillStyle = currentSettings.textColor;
+            }
+            ctx.fillText(text, x, y);
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+        }
+        function drawBorder() {
+            const border = currentSettings.border;
+            const margin = canvas.width * 0.08;
+            const borderWidth = canvas.width * 0.01;
+            ctx.strokeStyle = currentSettings.borderColor;
+            ctx.lineWidth = borderWidth;
+            if (border === 'simple') {
+                ctx.strokeRect(margin, margin, canvas.width - margin * 2, canvas.height - margin * 2);
+            } else if (border === 'double') {
+                ctx.strokeRect(margin, margin, canvas.width - margin * 2, canvas.height - margin * 2);
+                const innerMargin = margin + borderWidth * 3;
+                ctx.strokeRect(innerMargin, innerMargin, canvas.width - innerMargin * 2, canvas.height - innerMargin * 2);
+            } else if (border === 'ornament') {
+                ctx.strokeRect(margin, margin, canvas.width - margin * 2, canvas.height - margin * 2);
+                const cornerSize = canvas.width * 0.05;
+                ctx.lineWidth = borderWidth * 2;
+                ctx.beginPath();
+                ctx.moveTo(margin, margin + cornerSize);
+                ctx.lineTo(margin, margin);
+                ctx.lineTo(margin + cornerSize, margin);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(canvas.width - margin - cornerSize, margin);
+                ctx.lineTo(canvas.width - margin, margin);
+                ctx.lineTo(canvas.width - margin, margin + cornerSize);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(margin, canvas.height - margin - cornerSize);
+                ctx.lineTo(margin, canvas.height - margin);
+                ctx.lineTo(margin + cornerSize, canvas.height - margin);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(canvas.width - margin - cornerSize, canvas.height - margin);
+                ctx.lineTo(canvas.width - margin, canvas.height - margin);
+                ctx.lineTo(canvas.width - margin, canvas.height - margin - cornerSize);
+                ctx.stroke();
+            } else if (border === 'corners') {
+                const cornerSize = canvas.width * 0.08;
+                ctx.lineWidth = borderWidth * 2;
+                ctx.beginPath();
+                ctx.moveTo(margin, margin + cornerSize);
+                ctx.lineTo(margin, margin);
+                ctx.lineTo(margin + cornerSize, margin);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(canvas.width - margin - cornerSize, margin);
+                ctx.lineTo(canvas.width - margin, margin);
+                ctx.lineTo(canvas.width - margin, margin + cornerSize);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(margin, canvas.height - margin - cornerSize);
+                ctx.lineTo(margin, canvas.height - margin);
+                ctx.lineTo(margin + cornerSize, canvas.height - margin);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(canvas.width - margin - cornerSize, canvas.height - margin);
+                ctx.lineTo(canvas.width - margin, canvas.height - margin);
+                ctx.lineTo(canvas.width - margin, canvas.height - margin - cornerSize);
+                ctx.stroke();
+            } else if (border === 'vintage') {
+                ctx.lineWidth = borderWidth * 2;
+                ctx.strokeRect(margin, margin, canvas.width - margin * 2, canvas.height - margin * 2);
+                const innerMargin = margin + borderWidth * 6;
+                ctx.lineWidth = borderWidth * 0.5;
+                ctx.strokeRect(innerMargin, innerMargin, canvas.width - innerMargin * 2, canvas.height - innerMargin * 2);
+                const midMargin = (margin + innerMargin) / 2;
+                ctx.strokeRect(midMargin, midMargin, canvas.width - midMargin * 2, canvas.height - midMargin * 2);
+            } else if (border === 'rounded') {
+                const radius = canvas.width * 0.05;
+                ctx.lineWidth = borderWidth * 1.5;
+                ctx.beginPath();
+                ctx.moveTo(margin + radius, margin);
+                ctx.lineTo(canvas.width - margin - radius, margin);
+                ctx.arcTo(canvas.width - margin, margin, canvas.width - margin, margin + radius, radius);
+                ctx.lineTo(canvas.width - margin, canvas.height - margin - radius);
+                ctx.arcTo(canvas.width - margin, canvas.height - margin, canvas.width - margin - radius, canvas.height - margin, radius);
+                ctx.lineTo(margin + radius, canvas.height - margin);
+                ctx.arcTo(margin, canvas.height - margin, margin, canvas.height - margin - radius, radius);
+                ctx.lineTo(margin, margin + radius);
+                ctx.arcTo(margin, margin, margin + radius, margin, radius);
+                ctx.closePath();
+                ctx.stroke();
+            } else if (border === 'dashed') {
+                ctx.setLineDash([borderWidth * 3, borderWidth * 2]);
+                ctx.lineWidth = borderWidth * 1.5;
+                ctx.strokeRect(margin, margin, canvas.width - margin * 2, canvas.height - margin * 2);
+                ctx.setLineDash([]);
+            } else if (border === 'wave') {
+                ctx.lineWidth = borderWidth * 1.5;
+                const waveHeight = canvas.width * 0.02;
+                const waveLength = canvas.width * 0.05;
+                ctx.beginPath();
+                for (let x = margin; x <= canvas.width - margin; x += waveLength / 4) {
+                    const y = margin + Math.sin((x - margin) / waveLength * Math.PI * 2) * waveHeight;
+                    if (x === margin) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+                ctx.beginPath();
+                for (let x = margin; x <= canvas.width - margin; x += waveLength / 4) {
+                    const y = canvas.height - margin + Math.sin((x - margin) / waveLength * Math.PI * 2) * waveHeight;
+                    if (x === margin) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+                ctx.beginPath();
+                for (let y = margin; y <= canvas.height - margin; y += waveLength / 4) {
+                    const x = margin + Math.sin((y - margin) / waveLength * Math.PI * 2) * waveHeight;
+                    if (y === margin) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+                ctx.beginPath();
+                for (let y = margin; y <= canvas.height - margin; y += waveLength / 4) {
+                    const x = canvas.width - margin + Math.sin((y - margin) / waveLength * Math.PI * 2) * waveHeight;
+                    if (y === margin) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            } else if (border === 'floral') {
+                ctx.strokeRect(margin, margin, canvas.width - margin * 2, canvas.height - margin * 2);
+                const petalSize = canvas.width * 0.03;
+                const positions = [
+                    [margin, margin],
+                    [canvas.width - margin, margin],
+                    [margin, canvas.height - margin],
+                    [canvas.width - margin, canvas.height - margin]
+                ];
+                positions.forEach(([x, y]) => {
+                    for (let i = 0; i < 4; i++) {
+                        const angle = (i * Math.PI / 2);
+                        ctx.beginPath();
+                        ctx.arc(
+                            x + Math.cos(angle) * petalSize / 2,
+                            y + Math.sin(angle) * petalSize / 2,
+                            petalSize / 3,
+                            0,
+                            Math.PI * 2
+                        );
+                        ctx.stroke();
+                    }
+                });
+            } else if (border === 'art-deco') {
+                ctx.lineWidth = borderWidth * 2;
+                const step = canvas.width * 0.04;
+                const corners = [
+                    [margin, margin, 1, 1],
+                    [canvas.width - margin, margin, -1, 1],
+                    [margin, canvas.height - margin, 1, -1],
+                    [canvas.width - margin, canvas.height - margin, -1, -1]
+                ];
+                corners.forEach(([x, y, dx, dy]) => {
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x + step * dx, y);
+                    ctx.lineTo(x, y + step * dy);
+                    ctx.closePath();
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(x + step * dx * 0.5, y);
+                    ctx.lineTo(x + step * 1.5 * dx, y);
+                    ctx.lineTo(x, y + step * 1.5 * dy);
+                    ctx.lineTo(x, y + step * 0.5 * dy);
+                    ctx.closePath();
+                    ctx.stroke();
+                });
+            } else if (border === 'geometric') {
+                ctx.lineWidth = borderWidth * 1.5;
+                const size = canvas.width * 0.03;
+                ctx.strokeRect(margin, margin, canvas.width - margin * 2, canvas.height - margin * 2);
+                const triangles = [
+                    [margin, margin, margin + size, margin, margin, margin + size],
+                    [canvas.width - margin, margin, canvas.width - margin - size, margin, canvas.width - margin, margin + size],
+                    [margin, canvas.height - margin, margin + size, canvas.height - margin, margin, canvas.height - margin - size],
+                    [canvas.width - margin, canvas.height - margin, canvas.width - margin - size, canvas.height - margin, canvas.width - margin, canvas.height - margin - size]
+                ];
+                triangles.forEach(coords => {
+                    ctx.beginPath();
+                    ctx.moveTo(coords[0], coords[1]);
+                    ctx.lineTo(coords[2], coords[3]);
+                    ctx.lineTo(coords[4], coords[5]);
+                    ctx.closePath();
+                    ctx.stroke();
+                });
+            }
+        }
+        function drawImage() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const gradient = createGradient(currentSettings.background);
+            ctx.globalAlpha = currentSettings.bgOpacity / 100;
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = 1;
+            if (currentSettings.vignette > 0) {
+                const vignette = ctx.createRadialGradient(
+                    canvas.width / 2, canvas.height / 2, 0,
+                    canvas.width / 2, canvas.height / 2, canvas.width / 1.5
+                );
+                vignette.addColorStop(0, 'rgba(0,0,0,0)');
+                vignette.addColorStop(1, `rgba(0,0,0,${currentSettings.vignette / 100})`);
+                ctx.fillStyle = vignette;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+            if (currentSettings.border !== 'none') {
+                drawBorder();
+            }
+            const verseText = currentSettings.addQuotes ? `"${currentSettings.verse}"` : currentSettings.verse;
+            ctx.fillStyle = currentSettings.textColor;
+            const baseFontSize = canvas.width * 0.045 * (currentSettings.textSize / 100);
+            ctx.font = `${baseFontSize}px ${currentSettings.font}`;
+            ctx.textAlign = currentSettings.centerAlign ? 'center' : 'left';
+            ctx.textBaseline = 'middle';
+            const maxWidth = canvas.width * 0.75;
+            const lines = wrapText(verseText, maxWidth);
+            const lineHeight = canvas.width * 0.06 * (currentSettings.textSize / 100);
+            const totalHeight = lines.length * lineHeight;
+            let y = (canvas.height - totalHeight) / 2;
+            const x = currentSettings.centerAlign ? canvas.width / 2 : canvas.width * 0.125;
+            lines.forEach(line => {
+                applyTextEffect(line, x, y);
+                y += lineHeight;
+            });
+            if (currentSettings.reference) {
+                const savedColor = currentSettings.textColor;
+                currentSettings.textColor = currentSettings.referenceColor;
+                ctx.fillStyle = currentSettings.referenceColor;
+                const refFontSize = canvas.width * 0.035 * (currentSettings.textSize / 100);
+                ctx.font = `italic ${refFontSize}px ${currentSettings.font}`;
+                applyTextEffect(currentSettings.reference, x, y + lineHeight * 0.8);
+                currentSettings.textColor = savedColor;
+            }
+        }
+        // События
+        document.getElementById('verseSelect').addEventListener('change', function(e) {
+            if (e.target.value) {
+                const [verse, reference] = e.target.value.split('|');
+                currentSettings.verse = verse;
+                currentSettings.reference = reference;
+                document.getElementById('customVerse').value = verse;
+                document.getElementById('verseReference').value = reference;
+                drawImage();
+            }
+        });
+        document.getElementById('customVerse').addEventListener('input', function(e) {
+            currentSettings.verse = e.target.value || 'Введите текст стиха...';
+            drawImage();
+        });
+        document.getElementById('verseReference').addEventListener('input', function(e) {
+            currentSettings.reference = e.target.value;
+            drawImage();
+        });
+        document.querySelectorAll('.bg-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.bg-option').forEach(o => o.classList.remove('active'));
+                this.classList.add('active');
+                currentSettings.background = backgrounds[this.dataset.bg];
+                drawImage();
+            });
+        });
+        document.querySelectorAll('.font-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.font-option').forEach(o => o.classList.remove('active'));
+                this.classList.add('active');
+                currentSettings.font = this.dataset.font;
+                drawImage();
+            });
+        });
+        document.querySelectorAll('.effect-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.effect-option').forEach(o => o.classList.remove('active'));
+                this.classList.add('active');
+                currentSettings.effect = this.dataset.effect;
+                drawImage();
+            });
+        });
+        document.querySelectorAll('.border-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.border-option').forEach(o => o.classList.remove('active'));
+                this.classList.add('active');
+                currentSettings.border = this.dataset.border;
+                drawImage();
+            });
+        });
+        document.getElementById('textColor').addEventListener('input', function(e) {
+            currentSettings.textColor = e.target.value;
+            drawImage();
+        });
+        document.getElementById('referenceColor').addEventListener('input', function(e) {
+            currentSettings.referenceColor = e.target.value;
+            drawImage();
+        });
+        document.getElementById('borderColor').addEventListener('input', function(e) {
+            currentSettings.borderColor = e.target.value;
+            drawImage();
+        });
+        document.querySelectorAll('.format-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.format-option').forEach(o => o.classList.remove('active'));
+                this.classList.add('active');
+                currentSettings.format = this.dataset.format;
+                initCanvas();
+            });
+        });
+        document.getElementById('bgOpacity').addEventListener('input', function(e) {
+            currentSettings.bgOpacity = parseInt(e.target.value);
+            document.getElementById('bgOpacityValue').textContent = e.target.value + '%';
+            drawImage();
+        });
+        document.getElementById('textSize').addEventListener('input', function(e) {
+            currentSettings.textSize = parseInt(e.target.value);
+            document.getElementById('textSizeValue').textContent = e.target.value + '%';
+            drawImage();
+        });
+        document.getElementById('vignette').addEventListener('input', function(e) {
+            currentSettings.vignette = parseInt(e.target.value);
+            document.getElementById('vignetteValue').textContent = e.target.value + '%';
+            drawImage();
+        });
+        document.getElementById('centerAlign').addEventListener('change', function(e) {
+            currentSettings.centerAlign = e.target.checked;
+            drawImage();
+        });
+        document.getElementById('addQuotes').addEventListener('change', function(e) {
+            currentSettings.addQuotes = e.target.checked;
+            drawImage();
+        });
+        // Предустановки — ИСПРАВЛЕНО
+        const presets = {
+            elegant: {
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                font: "'Playfair Display', serif",
+                textColor: '#ffffff',
+                referenceColor: '#d1c4e9',
+                borderColor: '#ffffff',
+                effect: 'shadow',
+                border: 'double',
+                textSize: 100,
+                vignette: 30
+            },
+            modern: {
+                background: 'linear-gradient(135deg, #08203e 0%, #557c93 100%)',
+                font: "'Montserrat', sans-serif",
+                textColor: '#ffffff',
+                referenceColor: '#90caf9',
+                borderColor: '#64b5f6',
+                effect: 'glow',
+                border: 'simple',
+                textSize: 110,
+                vignette: 20
+            },
+            vintage: {
+                background: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+                font: "'Cormorant Garamond', serif",
+                textColor: '#5f2c82',
+                referenceColor: '#9c4d97',
+                borderColor: '#8b4789',
+                effect: 'none',
+                border: 'corners',
+                textSize: 85,
+                vignette: 40
+            },
+            nature: {
+                background: 'linear-gradient(135deg, #134e5e 0%, #71b280 100%)',
+                font: "'Lora', serif",
+                textColor: '#ffffff',
+                referenceColor: '#c8e6c9',
+                borderColor: '#a5d6a7',
+                effect: 'shadow',
+                border: 'ornament',
+                textSize: 100,
+                vignette: 35
+            },
+            royal: {
+                background: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+                font: "'Crimson Text', serif",
+                textColor: '#ffd700',
+                referenceColor: '#ffe57f',
+                borderColor: '#ffd700',
+                effect: '3d',
+                border: 'art-deco',
+                textSize: 105,
+                vignette: 25
+            },
+            sunrise: {
+                background: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                font: "'Raleway', sans-serif",
+                textColor: '#ffffff',
+                referenceColor: '#fff9c4',
+                borderColor: '#ffffff',
+                effect: 'outline',
+                border: 'corners',
+                textSize: 100,
+                vignette: 15
+            },
+            minimal: {
+                background: 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
+                font: "Arial, sans-serif",
+                textColor: '#424242',
+                referenceColor: '#757575',
+                borderColor: '#9e9e9e',
+                effect: 'none',
+                border: 'corners',
+                textSize: 90,
+                vignette: 0
+            },
+            ocean: {
+                background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                font: "'Montserrat', sans-serif",
+                textColor: '#ffffff',
+                referenceColor: '#b3e5fc',
+                borderColor: '#81d4fa',
+                effect: 'glow',
+                border: 'wave',
+                textSize: 100,
+                vignette: 20
+            },
+            sunset: {
+                background: 'linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%)',
+                font: "'Playfair Display', serif",
+                textColor: '#ffffff',
+                referenceColor: '#ffe0b2',
+                borderColor: '#ffab91',
+                effect: 'shadow',
+                border: 'rounded',
+                textSize: 95,
+                vignette: 30
+            },
+            forest: {
+                background: 'linear-gradient(135deg, #0f2027 0%, #2c5364 100%)',
+                font: "'Lora', serif",
+                textColor: '#a8e6a8',
+                referenceColor: '#c8e6c9',
+                borderColor: '#81c784',
+                effect: 'glow',
+                border: 'floral',
+                textSize: 100,
+                vignette: 40
+            }
+        };
+        document.getElementById('presetSelect').addEventListener('change', function(e) {
+            if (!e.target.value) return;
+            const presetName = e.target.value;
+            const preset = presets[presetName];
+            if (!preset) return;
+
+            currentSettings.background = preset.background;
+            currentSettings.font = preset.font;
+            currentSettings.textColor = preset.textColor;
+            currentSettings.referenceColor = preset.referenceColor;
+            currentSettings.borderColor = preset.borderColor;
+            currentSettings.effect = preset.effect;
+            currentSettings.border = preset.border;
+            currentSettings.textSize = preset.textSize;
+            currentSettings.vignette = preset.vignette;
+
+            document.getElementById('textColor').value = preset.textColor;
+            document.getElementById('referenceColor').value = preset.referenceColor;
+            document.getElementById('borderColor').value = preset.borderColor;
+            document.getElementById('textSize').value = preset.textSize;
+            document.getElementById('textSizeValue').textContent = preset.textSize + '%';
+            document.getElementById('vignette').value = preset.vignette;
+            document.getElementById('vignetteValue').textContent = preset.vignette + '%';
+
+            document.querySelectorAll('.font-option').forEach(o => {
+                o.classList.toggle('active', o.dataset.font === preset.font);
+            });
+            document.querySelectorAll('.effect-option').forEach(o => {
+                o.classList.toggle('active', o.dataset.effect === preset.effect);
+            });
+            document.querySelectorAll('.border-option').forEach(o => {
+                o.classList.toggle('active', o.dataset.border === preset.border);
+            });
+
+            let foundBgKey = null;
+            for (const [key, value] of Object.entries(backgrounds)) {
+                if (value === preset.background) {
+                    foundBgKey = key;
+                    break;
+                }
+            }
+            if (foundBgKey) {
+                document.querySelectorAll('.bg-option').forEach(o => {
+                    o.classList.toggle('active', o.dataset.bg === foundBgKey);
+                });
+            }
+
+            drawImage();
+        });
+        function downloadImage() {
+            const link = document.createElement('a');
+            const fileName = currentSettings.reference ? 
+                `${currentSettings.reference.replace(/[^а-яА-Яa-zA-Z0-9]/g, '_')}.png` : 
+                'bible_verse.png';
+            link.download = fileName;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        initCanvas();
+    </script>
+</body>
+</html>
